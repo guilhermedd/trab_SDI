@@ -1,6 +1,3 @@
-
-//Example 26
-
 import java.io.DataInputStream;
 import java.io.PrintStream;
 import java.io.IOException;
@@ -27,26 +24,24 @@ public class MultiThreadChatServer {
     int portNumber = 2222;
 
     if (args.length < 1) {
-      System.out
-          .println("Usage: java MultiThreadChatServer <portNumber>\n"
-              + "Now using port number=" + portNumber);
+      System.out.println("Usage: java MultiThreadChatServer <portNumber>\n" + "Now using port number=" + portNumber);
     } else {
       portNumber = Integer.valueOf(args[0]).intValue();
     }
 
     /*
-     * Open a server socket on the portNumber (default 2222). Note that we can
-     * not choose a port less than 1023 if we are not privileged users (root).
+     * Open a server socket on the portNumber (default 2222). Note that we can not
+     * choose a port less than 1023 if we are not privileged users (root).
      */
     try {
       serverSocket = new ServerSocket(portNumber);
+      System.out.println("Servidor TCP iniciado na porta " + portNumber);
     } catch (IOException e) {
       System.out.println(e);
     }
 
     /*
-     * Create a client socket for each connection and pass it to a new client
-     * thread.
+     * Create a client socket for each connection and pass it to a new client thread.
      */
     while (true) {
       try {
@@ -54,6 +49,7 @@ public class MultiThreadChatServer {
         int i = 0;
         for (i = 1; i < maxClientsCount; i++) { // First client is MulticastSender
           if (threads[i] == null) {
+            System.out.println("Novo cliente conectado: " + clientSocket);
             (threads[i] = new clientThread(clientSocket, threads)).start();
             break;
           }

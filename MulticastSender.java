@@ -1,12 +1,6 @@
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
 
-
-/**
- * @author lycog
- * https://www.iana.org/assignments/multicast-addresses/multicast-addresses.xhtml
- */
 public class MulticastSender {
   private static BufferedReader inputLine = null;
 
@@ -17,7 +11,6 @@ public class MulticastSender {
       System.err.println("Error: " + e.getMessage());
       return;
     }
-
 
     receiveServerMessageAndSend();
   }
@@ -44,10 +37,12 @@ public class MulticastSender {
       // loop to get and send messages
       String serverMessage;
       while((serverMessage = reader.readLine())!= null){
+//        System.out.println("Received: " + serverMessage);
+        // Send server message to multicast address and port
         sendMulticastMessage(serverMessage, multicastSocket, multicastAddress, multicastPort);
       }
     } catch (IOException e) {
-        System.err.println("Error: " + e.getMessage());
+      System.err.println("Error: " + e.getMessage());
     } finally {
       try {
         if (clientSocket!= null) {
@@ -63,7 +58,6 @@ public class MulticastSender {
         System.err.println("Error: " + e.getMessage());
       }
     }
-
   }
 
   public static void sendMulticastMessage(String message, DatagramSocket socket, InetAddress address, int port) {
@@ -71,10 +65,9 @@ public class MulticastSender {
       byte[] outBuf = message.getBytes();
       DatagramPacket packet = new DatagramPacket(outBuf, outBuf.length, address, port);
       socket.send(packet);
-      System.out.println("Server sends : " + message);
+//      System.out.println("Server sends : " + message);
     } catch (IOException e) {
       System.err.println("Error sending multicast message: " + e.getMessage());
     }
   }
-
 }

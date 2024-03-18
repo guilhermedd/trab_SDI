@@ -42,6 +42,7 @@ class clientThread extends Thread {
       os.println("Hello " + name
           + " to our chat room.\nTo leave enter /q");
 
+      // avisa todos que o usuário entrou
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
           threads[i].os.println("*** THe user " + name
@@ -54,6 +55,7 @@ class clientThread extends Thread {
         if (line.startsWith("/q")) {
           break;
         }
+        // manda a mensagem para todo mundo
         for (int i = 0; i < maxClientsCount; i++) {
           if (threads[i] != null) {
             threads[i].os.println("<" + name + ">; " + line);
@@ -89,4 +91,5 @@ class clientThread extends Thread {
     } catch (IOException e) {
     }
   }
+
 }
