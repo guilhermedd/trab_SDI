@@ -12,3 +12,7 @@ Trabalho sobre multicast
 -> Toda mensagem que o cliente enviar para o servidor, este manda em multicast
 
 -> Todos os outros clientes recebem a mensagem
+
+# TODO:
+[] MulticastReceiver conseguir escrever mensagem e mandar para o MultiThreadServer
+[] cada mensagem nova o MultiThreadServer manda essa mensagem pro MulticastServer
