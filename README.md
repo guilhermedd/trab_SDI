@@ -2,9 +2,10 @@
 Trabalho sobre multicast
 
 `make`
+
 `make all`
 
--> Cliente entra em contato com servidor
+-> Cliente entra em contato com servidor (socket)
 
 -> Sevidor avisa em multicast que o cliente entrou
 

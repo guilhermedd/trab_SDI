@@ -36,19 +36,22 @@ class clientThread extends Thread {
        */
       is = new DataInputStream(clientSocket.getInputStream());
       os = new PrintStream(clientSocket.getOutputStream());
+
       os.println("Enter your name.");
       String name = is.readLine().trim();
       os.println("Hello " + name
-          + " to our chat room.\nTo leave enter /quit in a new line");
+          + " to our chat room.\nTo leave enter /q");
+
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
-          threads[i].os.println("*** A new user " + name
-              + " entered the chat room !!! ***");
+          threads[i].os.println("*** THe user " + name
+              + " has entered the chat room ***");
         }
       }
+
       while (true) {
         String line = is.readLine();
-        if (line.startsWith("/quit")) {
+        if (line.startsWith("/q")) {
           break;
         }
         for (int i = 0; i < maxClientsCount; i++) {
@@ -57,12 +60,14 @@ class clientThread extends Thread {
           }
         }
       }
+
       for (int i = 0; i < maxClientsCount; i++) {
         if (threads[i] != null && threads[i] != this) {
           threads[i].os.println("*** The user " + name
               + " is leaving the chat room !!! ***");
         }
       }
+      
       os.println("*** Bye " + name + " ***");
 
       /*
