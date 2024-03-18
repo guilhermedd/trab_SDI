@@ -19,12 +19,13 @@ public class MultiThreadChatServer {
 
   // This chat server can accept up to maxClientsCount clients' connections.
   private static final int maxClientsCount = 10;
-  private static final clientThread[] threads = new clientThread[maxClientsCount];
+  private static final clientThread[] threads = new clientThread[maxClientsCount + 1];
 
   public static void main(String args[]) {
 
     // The default port number.
     int portNumber = 2222;
+
     if (args.length < 1) {
       System.out
           .println("Usage: java MultiThreadChatServer <portNumber>\n"
@@ -51,7 +52,7 @@ public class MultiThreadChatServer {
       try {
         clientSocket = serverSocket.accept();
         int i = 0;
-        for (i = 0; i < maxClientsCount; i++) {
+        for (i = 1; i < maxClientsCount; i++) { // First client is MulticastSender
           if (threads[i] == null) {
             (threads[i] = new clientThread(clientSocket, threads)).start();
             break;
