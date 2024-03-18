@@ -15,4 +15,5 @@ Trabalho sobre multicast
 
 # TODO:
 [] MulticastReceiver conseguir escrever mensagem e mandar para o MultiThreadServer
+
 [] cada mensagem nova o MultiThreadServer manda essa mensagem pro MulticastServer
