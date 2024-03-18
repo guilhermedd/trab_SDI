@@ -14,6 +14,8 @@ Trabalho sobre multicast
 -> Todos os outros clientes recebem a mensagem
 
 # TODO:
-[] MulticastReceiver conseguir escrever mensagem e mandar para o MultiThreadServer
+[ ] MulticastReceiver conseguir escrever mensagem e mandar para o MultiThreadServer
 
-[] cada mensagem nova o MultiThreadServer manda essa mensagem pro MulticastServer
+[ ] Cada mensagem nova o MultiThreadServer manda essa mensagem pro MulticastServer
+
+[ ] Apenas usuários que sabem a senha mestra e o login mestre podem entrar
