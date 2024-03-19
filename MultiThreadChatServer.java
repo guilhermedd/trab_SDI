@@ -1,122 +1,80 @@
 import java.io.*;
-import java.net.Socket;
-import java.net.ServerSocket;
+import java.net.*;
 import java.util.Properties;
 
-/*
- * A chat server that delivers public and private messages.
- */
+import static java.lang.Thread.sleep;
+
 public class MultiThreadChatServer {
 
-  // The server socket.
-  private static ServerSocket serverSocket = null;
-  // The client socket.
-  private static Socket clientSocket = null;
+  private static final int maxClientsCount = 20;
 
-  private static Socket masterSocket = null;
-
-  // This chat server can accept up to maxClientsCount clients' connections.
-  private static final int maxClientsCount = 10;
-  private static final clientThread[] threads = new clientThread[maxClientsCount + 1];
-
-  public static void main(String args[]) throws IOException {
-
-    // The default port number.
+  public static void main(String args[]) {
     int portNumber = 2222;
+    int multicastPort = 8889;
 
-    if (args.length < 1) {
-      System.out.println("Usage: java MultiThreadChatServer <portNumber>\n" + "Now using port number=" + portNumber);
-    } else {
-      portNumber = Integer.parseInt(args[0]);
-    }
-
-    Properties properties = new Properties();
-
-    // Carregar o arquivo de propriedades
-    FileInputStream fileInputStream = new FileInputStream("login.properties");
-    properties.load(fileInputStream);
-    fileInputStream.close();
-
-    // Obter os valores das propriedades "user" e "password"
-    String user = properties.getProperty("user");
-    String password = properties.getProperty("password");
-    String master_user = properties.getProperty("master_user");
-    String master_password = properties.getProperty("master_password");
-
-    String get_login = "SEND_LOGIN";
-    /*
-     * Open a server socket on the portNumber (default 2222). Note that we can not
-     * choose a port less than 1023 if we are not privileged users (root).
-     */
     try {
-      serverSocket = new ServerSocket(portNumber);
-      System.out.println("Servidor TCP iniciado na porta " + portNumber);
-    } catch (IOException e) {
-      System.out.println(e);
-    }
+      Properties properties = new Properties();
+      FileInputStream fileInputStream = new FileInputStream("login.properties");
+      properties.load(fileInputStream);
+      fileInputStream.close();
 
-    /*
-     * Create a client socket for each connection and pass it to a new client thread.
-     */
-    while (true) {
-      try {
-        clientSocket = serverSocket.accept();
-        OutputStream outputStream = clientSocket.getOutputStream();
-        outputStream.write(get_login.getBytes());
-        boolean accepted = false;
+      String user = properties.getProperty("user");
+      String password = properties.getProperty("password");
+      String master_user = properties.getProperty("master_user");
+      String master_password = properties.getProperty("master_password");
 
-        while (true) {
-          // Cria um BufferedReader para ler mensagens enviadas pelo cliente
-          BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+      DatagramSocket socket = new DatagramSocket(portNumber);
 
-          // Lê a mensagem enviada pelo cliente
-          String login = reader.readLine();
+      byte[] buffer = new byte[2048];
 
-          if (login != null && (!login.equals(user + password) || !login.equals(master_user + master_password))) {
-            String rejection = "The login is incorrect!";
-            outputStream.write(rejection.getBytes());
-            clientSocket.close();
-            break;
-          }
+      while (true) {
+        // Cria um pacote para receber os dados
+        DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 
-          if (login != null && login.equals(user + password)) {
-            accepted = true;
-            break;
-          }
+        // Aguarda a chegada de pacotes
+        socket.receive(receivePacket);
 
-          if (login != null && login.equals(master_user + master_password)) {
-            accepted = true;
-            masterSocket = clientSocket;
-            break;
-          }
+        String login = new String(receivePacket.getData(), 0, receivePacket.getLength());
+
+        System.out.println(login);
+
+        byte[] sendData;
+
+        // Message type: name;user,password
+        if (!login.split(";")[1].equals(user + ',' + password) && !login.split(";")[1].equals(master_user + ',' + master_password)) {
+          String rejection = "The login is incorrect!;";
+          sendData = rejection.getBytes();
+          InetAddress clientAddress = receivePacket.getAddress();
+          int clientPort = receivePacket.getPort();
+          DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
+          socket.send(sendPacket);
+          sleep(500);
+        } else {
+          // Send OK
+          String accepted = "OK;224.0.0.2;8000"; // accepted; multicast address; port
+          sendData = accepted.getBytes();
+          InetAddress clientAddress = receivePacket.getAddress();
+          int clientPort = receivePacket.getPort();
+          DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, clientAddress, clientPort);
+          socket.send(sendPacket);
+          sleep(500);
+
+          // Get the message
+          socket.receive(receivePacket);
+          String receivedMessage = new String(receivePacket.getData(), 0, receivePacket.getLength());
+
+          // Send the message to Multicast Server
+          InetAddress multicastAddress = InetAddress.getByName("localhost");
+          sendData = receivedMessage.getBytes();
+          DatagramPacket sendToMulticast = new DatagramPacket(sendData, sendData.length, multicastAddress, multicastPort);
+          socket.send(sendToMulticast);
+          sleep(500);
         }
-
-        if (accepted) {
-          Thread clientThread = new Thread(new clientThread(clientSocket, masterSocket));
-          clientThread.start();
-
-          //          int i = 0;
-//
-//          for (i = 1; i < maxClientsCount + 1; i++) { // First client is MulticastSender
-//            if (threads[i] == null) {
-//              System.out.println("Novo cliente conectado: " + clientSocket);
-//              (threads[i] = new clientThread(clientSocket, threads)).start();
-//              break;
-//            }
-//          }
-//
-//          if (i == maxClientsCount) {
-//            PrintStream os = new PrintStream(clientSocket.getOutputStream());
-//            os.println("Server too busy. Try later.");
-//            os.close();
-//            clientSocket.close();
-//          }
-
-        }
-
-      } catch (IOException e) {
-        System.out.println(e);
       }
+    } catch (IOException e) {
+      System.out.println("Erro: " + e.getMessage());
+    } catch (InterruptedException e) {
+        throw new RuntimeException(e);
     }
   }
 }

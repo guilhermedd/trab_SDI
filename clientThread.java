@@ -32,70 +32,71 @@ class clientThread extends Thread {
     int maxClientsCount = this.maxClientsCount;
 //    clientThread[] threads = this.threads;
 
-    try {
-      /*
-       * Create input and output streams for this client.
-       */
-      is = new DataInputStream(clientSocket.getInputStream());
-      os = new PrintStream(serverSocket.getOutputStream());
-
-      os.println("Enter your name.");
-      String name = is.readLine().trim();
-      os.println("Hello " + name
-          + " to our chat room.\nTo leave enter /q");
-
-      // avisa todos que o usuário entrou
-//      for (int i = 0; i < maxClientsCount; i++) {
-//        if (threads[i] != null && threads[i] != this) {
-//          threads[i].os.println("*** THe user " + name
+//    try {
+//      /*
+//       * Create input and output streams for this client.
+//       */
+//      is = new DataInputStream(clientSocket.getInputStream());
+//      os = new PrintStream(serverSocket.getOutputStream());
+//
+//      os.println("Enter your login and password separated by ';' .");
+//      String name = is.readLine().trim();
+//
+//      os.println("Hello " + name
+//          + " to our chat room.\nTo leave enter /q");
+//
+//      // avisa todos que o usuário entrou
+////      for (int i = 0; i < maxClientsCount; i++) {
+////        if (threads[i] != null && threads[i] != this) {
+////          threads[i].os.println("*** THe user " + name
+////              + " has entered the chat room ***");
+////        }
+////      }
+//      os.println("*** THe user " + name
 //              + " has entered the chat room ***");
+//
+//      while (true) {
+//        String line = is.readLine();
+//        if (line.startsWith("/q")) {
+//          break;
+//        }
+//
+//        // manda a mensagem para todo mundo
+//
+//        for (int i = 0; i < maxClientsCount; i++) {
+//          if (threads[i] != null) {
+//            threads[i].os.println("<" + name + ">; " + line);
+//          }
 //        }
 //      }
-      os.println("*** THe user " + name
-              + " has entered the chat room ***");
-
-      while (true) {
-        String line = is.readLine();
-        if (line.startsWith("/q")) {
-          break;
-        }
-
-        // manda a mensagem para todo mundo
-
-        for (int i = 0; i < maxClientsCount; i++) {
-          if (threads[i] != null) {
-            threads[i].os.println("<" + name + ">; " + line);
-          }
-        }
-      }
-
-      for (int i = 0; i < maxClientsCount; i++) {
-        if (threads[i] != null && threads[i] != this) {
-          threads[i].os.println("*** The user " + name
-              + " is leaving the chat room !!! ***");
-        }
-      }
-      
-      os.println("*** Bye " + name + " ***");
-
-      /*
-       * Clean up. Set the current thread variable to null so that a new client
-       * could be accepted by the server.
-       */
-      for (int i = 0; i < maxClientsCount; i++) {
-        if (threads[i] == this) {
-          threads[i] = null;
-        }
-      }
-
-      /*
-       * Close the output stream, close the input stream, close the socket.
-       */
-      is.close();
-      os.close();
-      clientSocket.close();
-    } catch (IOException e) {
-    }
+//
+//      for (int i = 0; i < maxClientsCount; i++) {
+//        if (threads[i] != null && threads[i] != this) {
+//          threads[i].os.println("*** The user " + name
+//              + " is leaving the chat room !!! ***");
+//        }
+//      }
+//
+//      os.println("*** Bye " + name + " ***");
+//
+//      /*
+//       * Clean up. Set the current thread variable to null so that a new client
+//       * could be accepted by the server.
+//       */
+//      for (int i = 0; i < maxClientsCount; i++) {
+//        if (threads[i] == this) {
+//          threads[i] = null;
+//        }
+//      }
+//
+//      /*
+//       * Close the output stream, close the input stream, close the socket.
+//       */
+//      is.close();
+//      os.close();
+//      clientSocket.close();
+//    } catch (IOException e) {
+//    }
   }
 
 }

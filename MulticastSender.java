@@ -2,72 +2,54 @@ import java.io.*;
 import java.net.*;
 
 public class MulticastSender {
-  private static BufferedReader inputLine = null;
 
   public static void main(String[] args) {
     try {
-      inputLine = new BufferedReader(new InputStreamReader(System.in));
-    } catch (Exception e) {
-      System.err.println("Error: " + e.getMessage());
+      // Cria um socket UDP na porta 8888
+      DatagramSocket socket = new DatagramSocket(8888);
+
+      // Cria um socket de multicast
+      MulticastSocket multicastSocket = new MulticastSocket();
+      InetAddress multicastAddress = InetAddress.getByName("224.0.0.2");
+      int multicastPort = 8000;
+
+      // Loop para receber e retransmitir mensagens
+      while (true) {
+        receiveAndSend(socket, multicastSocket, multicastAddress, multicastPort);
+      }
+    } catch (IOException e) {
+      System.err.println("Erro: " + e.getMessage());
+    }
+  }
+
+  public static void receiveAndSend(DatagramSocket socket, MulticastSocket multicastSocket, InetAddress multicastAddress, int multicastPort) throws IOException {
+    byte[] receiveData = new byte[2048];
+    DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
+    // Aguarda a chegada de pacotes
+    socket.receive(receivePacket);
+
+    // Extrai os dados recebidos do pacote
+    String receivedMessage = new String(receivePacket.getData(), 0, receivePacket.getLength());
+
+    if (receivedMessage.equals("CLOSE")) {
+      System.out.println("Servidor fechou a conexão.");
+      socket.close();
       return;
     }
 
-    receiveServerMessageAndSend();
+    // Envia a mensagem recebida por multicast
+    sendMulticastMessage(receivedMessage, multicastSocket, multicastAddress, multicastPort);
   }
 
-  public static void receiveServerMessageAndSend(){
-    // TCP connection
-    Socket clientSocket = null;
-    BufferedReader reader = null;
-
-    // Multicast connection
-    DatagramSocket multicastSocket = null;
-    InetAddress multicastAddress = null;
-    int multicastPort = 8888;
-
-    try{
-      // Connect to the server
-      clientSocket = new Socket("localhost", 2222);
-      reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-      // Create multicast socket and gets multicast address
-      multicastSocket = new DatagramSocket();
-      multicastAddress = InetAddress.getByName("224.0.0.2");
-
-      // loop to get and send messages
-      String serverMessage;
-      while((serverMessage = reader.readLine())!= null){
-//        System.out.println("Received: " + serverMessage);
-        // Send server message to multicast address and port
-        sendMulticastMessage(serverMessage, multicastSocket, multicastAddress, multicastPort);
-      }
-    } catch (IOException e) {
-      System.err.println("Error: " + e.getMessage());
-    } finally {
-      try {
-        if (clientSocket!= null) {
-          clientSocket.close();
-        }
-        if (reader!= null) {
-          reader.close();
-        }
-        if (multicastSocket!= null) {
-          multicastSocket.close();
-        }
-      } catch (IOException e) {
-        System.err.println("Error: " + e.getMessage());
-      }
-    }
-  }
-
-  public static void sendMulticastMessage(String message, DatagramSocket socket, InetAddress address, int port) {
+  public static void sendMulticastMessage(String message, MulticastSocket socket, InetAddress address, int port) {
     try {
       byte[] outBuf = message.getBytes();
       DatagramPacket packet = new DatagramPacket(outBuf, outBuf.length, address, port);
       socket.send(packet);
-//      System.out.println("Server sends : " + message);
+      System.out.println("Mensagem enviada por multicast: " + message);
     } catch (IOException e) {
-      System.err.println("Error sending multicast message: " + e.getMessage());
+      System.err.println("Erro ao enviar mensagem multicast: " + e.getMessage());
     }
   }
 }
