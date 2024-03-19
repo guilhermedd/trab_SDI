@@ -1,11 +1,13 @@
 import java.io.*;
 import java.net.*;
+import java.util.Properties;
 
 public class TCPClient {
-    private static final String SERVER_IP = "localhost";
-    private static final int SERVER_PORT = 12345;
+    private static String SERVER_IP;
+    private static int SERVER_PORT;
 
     public static void main(String[] args) {
+        getProperties();
         try {
             Socket socket = new Socket(SERVER_IP, SERVER_PORT);
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -44,6 +46,22 @@ public class TCPClient {
             e.printStackTrace();
         }
     }
+
+    public static void getProperties() {
+        Properties properties = new Properties();
+
+        try (FileInputStream input = new FileInputStream("secure.properties")) {
+            properties.load(input);
+
+            // Obtém o valor de uma propriedade específica
+            SERVER_IP = properties.getProperty("TCP_IP");
+            SERVER_PORT = Integer.parseInt(properties.getProperty("TCP_PORT"));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private static class MulticastClient extends Thread {
         private String multicastAddress;
