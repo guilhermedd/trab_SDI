@@ -14,28 +14,30 @@ import java.net.ServerSocket;
 
 class clientThread extends Thread {
 
+  private final Socket serverSocket;
   private DataInputStream is = null;
   private PrintStream os = null;
   private Socket clientSocket = null;
-  private final clientThread[] threads;
+//  private final clientThread[] threads;
   private int maxClientsCount;
 
-  public clientThread(Socket clientSocket, clientThread[] threads) {
+  public clientThread(Socket clientSocket, Socket serverSocket) {
     this.clientSocket = clientSocket;
-    this.threads = threads;
-    maxClientsCount = threads.length;
+    this.serverSocket = serverSocket;
+//    this.threads = threads;
+//    maxClientsCount = threads.length;
   }
 
   public void run() {
     int maxClientsCount = this.maxClientsCount;
-    clientThread[] threads = this.threads;
+//    clientThread[] threads = this.threads;
 
     try {
       /*
        * Create input and output streams for this client.
        */
       is = new DataInputStream(clientSocket.getInputStream());
-      os = new PrintStream(clientSocket.getOutputStream());
+      os = new PrintStream(serverSocket.getOutputStream());
 
       os.println("Enter your name.");
       String name = is.readLine().trim();
@@ -43,19 +45,23 @@ class clientThread extends Thread {
           + " to our chat room.\nTo leave enter /q");
 
       // avisa todos que o usuário entrou
-      for (int i = 0; i < maxClientsCount; i++) {
-        if (threads[i] != null && threads[i] != this) {
-          threads[i].os.println("*** THe user " + name
+//      for (int i = 0; i < maxClientsCount; i++) {
+//        if (threads[i] != null && threads[i] != this) {
+//          threads[i].os.println("*** THe user " + name
+//              + " has entered the chat room ***");
+//        }
+//      }
+      os.println("*** THe user " + name
               + " has entered the chat room ***");
-        }
-      }
 
       while (true) {
         String line = is.readLine();
         if (line.startsWith("/q")) {
           break;
         }
+
         // manda a mensagem para todo mundo
+
         for (int i = 0; i < maxClientsCount; i++) {
           if (threads[i] != null) {
             threads[i].os.println("<" + name + ">; " + line);
