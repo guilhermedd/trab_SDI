@@ -8,6 +8,8 @@ Trabalho sobre multicast
 
 *Em quantos outros servidores quiser* `java TCPClient`
 
+*Login e Senha devem ser "admin" para qualquer cliente conseguir se conectar*  
+
 ## Change specs
 Se quiser mudar alguma informação: IP_TCP, PORT_TCP, MULTICAST_PORT, MULTICAST_IP, PASSWORD, LOGIN (precisa ter o login e senha corretos para conseguir se conectar) muda dentro de secure.properties
 
