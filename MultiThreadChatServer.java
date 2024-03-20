@@ -8,6 +8,14 @@ public class MultiThreadChatServer {
 
   private static final int maxClientsCount = 20;
 
+  // The server socket.
+  private static ServerSocket serverSockeTCP = null;
+  // The client socket.
+  private static Socket clientSocket = null;
+
+  // This chat server can accept up to maxClientsCount clients' connections.
+  private static final clientThread[] threads = new clientThread[maxClientsCount];
+
   public static void main(String args[]) {
     int portNumber = 2222;
     int multicastPort = 8889;
@@ -27,7 +35,11 @@ public class MultiThreadChatServer {
 
       byte[] buffer = new byte[2048];
 
+
+
       while (true) {
+
+
         // Cria um pacote para receber os dados
         DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
 

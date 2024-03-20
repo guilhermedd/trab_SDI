@@ -41,7 +41,7 @@ public class multicastReceiver {
         }
 
         // Envia a mensagem recebida por multicast
-        sendMessage(receivedMessage, multicastSocket, multicastAddress, multicastPort);
+//        sendMessage(receivedMessage, multicastSocket, multicastAddress, multicastPort);
     }
 
     public static String[] sendMessage(String message, DatagramSocket socket, int port, String login) {

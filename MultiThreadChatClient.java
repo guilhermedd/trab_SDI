@@ -79,7 +79,7 @@ public class MultiThreadChatClient implements Runnable {
 
     /*
      * Create a thread to read from the server. (non-Javadoc)
-     * 
+     *
      * @see java.lang.Runnable#run()
      */
     public void run() {

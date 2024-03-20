@@ -4,16 +4,19 @@ import java.util.*;
 
 public class TCPServer {
     private static int PORT;
-    private static Set<PrintWriter> clientWriters = new HashSet<>();
     private static String MULTICASTADDRESS; // Endereço padrão do grupo de multicast
     private static int MULTICASTPORT; // Porta padrão do grupo de multicast
 
     private static String LOGIN;
     private static String PASSWORD;
+    private static MulticastSocket multicastSocket;
+    private static InetAddress multicastGroup;
 
     public static void main(String[] args) {
         getProperties();
         try {
+            multicastSocket = new MulticastSocket();
+            multicastGroup = InetAddress.getByName(MULTICASTADDRESS);
             ServerSocket serverSocket = new ServerSocket(PORT);
             System.out.println("Server started. Waiting for clients...");
 
@@ -49,19 +52,17 @@ public class TCPServer {
         }
     }
 
-
     private static class ClientHandler implements Runnable {
         private Socket clientSocket;
         private BufferedReader reader;
         private PrintWriter writer;
+        private boolean firstMessageReceived = false;
 
         public ClientHandler(Socket socket) {
             try {
                 this.clientSocket = socket;
                 this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 this.writer = new PrintWriter(socket.getOutputStream(), true);
-                // Adiciona o PrintWriter deste cliente ao conjunto de PrintWriter
-                clientWriters.add(writer);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -74,21 +75,20 @@ public class TCPServer {
                 while ((message = reader.readLine()) != null) {
                     System.out.println("Received message from client: " + message);
 
-                    // Verifica se a mensagem é "admin;admin;ACK"
-                    if (message.equals(LOGIN + ';' + PASSWORD + ';' + ";ACK")) {
-                        // Se for, envia o endereço do grupo multicast e a porta
-                        writer.println(MULTICASTADDRESS + ":" + MULTICASTPORT);
-                        System.out.println("Multicast address and port sent to client: " + MULTICASTADDRESS + ":" + MULTICASTPORT);
-                    } else {
-                        // Se não for, apenas exibe a mensagem recebida
-                        System.out.println("Message from client: " + message);
-                    }
+                    // Envia o endereço do grupo multicast e a porta para o cliente
+                    System.out.println("ACEITO!");
+                    writer.println(MULTICASTADDRESS + ":" + MULTICASTPORT);
+                    System.out.println("Multicast address and port sent to client: " + MULTICASTADDRESS + ":" + MULTICASTPORT);
+
+                    // Envia mensagem para o grupo de multicast
+                    String multicastMessage = message;
+                    DatagramPacket packet = new DatagramPacket(multicastMessage.getBytes(), multicastMessage.length(), multicastGroup, MULTICASTPORT);
+                    multicastSocket.send(packet);
+                    System.out.println("Sent multicast message: " + multicastMessage);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                // Remove o PrintWriter deste cliente ao desconectar
-                clientWriters.remove(writer);
                 try {
                     clientSocket.close();
                 } catch (IOException e) {
