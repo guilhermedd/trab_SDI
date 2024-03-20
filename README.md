@@ -1,21 +1,19 @@
 # trab_SDI
 Trabalho sobre multicast
 
+## Run
 `make`
 
-`make all`
+*Em um terminal* `java TCPServer`
 
--> Cliente entra em contato com servidor (socket)
+*Em quantos outros servidores quiser* `java TCPClient`
 
--> Sevidor avisa em multicast que o cliente entrou
+## Change specs
+Se quiser mudar alguma informação: IP_TCP, PORT_TCP, MULTICAST_PORT, MULTICAST_IP, PASSWORD, LOGIN (precisa ter o login e senha corretos para conseguir se conectar) muda dentro de secure.properties
 
--> Toda mensagem que o cliente enviar para o servidor, este manda em multicast
+## Trabalho feito por:
+Guilherme Diel, Ana Schwingel e Ana Eloina Nascimento Kraus.
 
--> Todos os outros clientes recebem a mensagem
 
-# TODO:
-[ ] MulticastReceiver conseguir escrever mensagem e mandar para o MultiThreadServer
 
-[X] Cada mensagem nova o MultiThreadServer manda essa mensagem pro MulticastServer
 
-[X] Apenas usuários que sabem a senha mestra e o login mestre podem entrar
