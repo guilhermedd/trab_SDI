@@ -12,6 +12,8 @@ public class TCPServer {
     private static MulticastSocket multicastSocket;
     private static InetAddress multicastGroup;
 
+    private String[] usernames;
+
     public static void main(String[] args) {
         getProperties();
         try {
@@ -58,6 +60,7 @@ public class TCPServer {
         private PrintWriter writer;
         private boolean firstMessageReceived = false;
 
+        private ArrayList<String> alloweds = new ArrayList<>();
         public ClientHandler(Socket socket) {
             try {
                 this.clientSocket = socket;
@@ -74,17 +77,23 @@ public class TCPServer {
                 String message;
                 while ((message = reader.readLine()) != null) {
                     System.out.println("Received message from client: " + message);
+                    String[] args = message.split(";");
 
-                    // Envia o endereço do grupo multicast e a porta para o cliente
-                    System.out.println("ACEITO!");
-                    writer.println(MULTICASTADDRESS + ":" + MULTICASTPORT);
-                    System.out.println("Multicast address and port sent to client: " + MULTICASTADDRESS + ":" + MULTICASTPORT);
-
-                    // Envia mensagem para o grupo de multicast
-                    String multicastMessage = message;
-                    DatagramPacket packet = new DatagramPacket(multicastMessage.getBytes(), multicastMessage.length(), multicastGroup, MULTICASTPORT);
-                    multicastSocket.send(packet);
-                    System.out.println("Sent multicast message: " + multicastMessage);
+                    if (message.startsWith(LOGIN + ';' + PASSWORD + ";ACK")) {
+                        // Envia o endereço do grupo multicast e a porta para o cliente
+                        System.out.println("ACEITO!");
+                        writer.println(MULTICASTADDRESS + ":" + MULTICASTPORT);
+                        System.out.println("Multicast address and port sent to client: " + MULTICASTADDRESS + ":" + MULTICASTPORT);
+                        alloweds.add(args[args.length - 1]);
+                    } else if (alloweds.contains(args[args.length - 1])) {
+                        // Envia mensagem para o grupo de multicast
+                        String multicastMessage = '<' + args[1] + "> " + args[0];
+                        DatagramPacket packet = new DatagramPacket(multicastMessage.getBytes(), multicastMessage.length(), multicastGroup, MULTICASTPORT);
+                        multicastSocket.send(packet);
+//                        System.out.println("Sent multicast message: " + multicastMessage);
+                    } else {
+                        clientSocket.close();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();

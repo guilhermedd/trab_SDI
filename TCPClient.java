@@ -47,7 +47,7 @@ public class TCPClient {
                 try {
                     while (true) {
                         String message = consoleReader.readLine();
-                        writer.println(message); // Envia a mensagem para o servidor
+                        writer.println(message + ';' + name); // Envia a mensagem para o servidor
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -105,7 +105,7 @@ public class TCPClient {
                 while (true) {
                     multicastSocket.receive(packet);
                     String received = new String(packet.getData(), 0, packet.getLength(), "UTF-8");
-                    System.out.println("Received multicast message: " + received);
+                    System.out.println(received);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
